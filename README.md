@@ -94,4 +94,4 @@ optimizer = optim.Adam(model.parameters(), lr=0.01)
         return scipy.stats.norm.cdf(target_logit, mean_out, std_out + 1e-30)
 ```
 
-
+5. Finally we calculate the TPR@FPR = 0.05 for the PUB dataset and output continuous membership values for the PRIV_OUT dataset.
