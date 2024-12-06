@@ -1,6 +1,13 @@
 # LiRA-MIA
 
 This is a PyTorch implementation of Membership Inference Attack proposed in the paper [1]. The implementation is based on Algorithm 1, the MIA attack is called LiRA - Likelihood Ratio Test Attack, I implemented here the offline version. All the experiments were done on Google Colab Pro.
+
+The code can be run as
+
+```Python
+python liraattack.py
+```
+
 ## Task at hand
 
 1. We are interested in discerning if a certain data point was used in the training of a target model. In our current task we have been given a ResNet-18 model checkpoint. We do not have access to information on how the model was trained, that is, the learning rate, dropout, regularization etc.
