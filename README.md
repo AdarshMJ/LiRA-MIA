@@ -13,7 +13,7 @@ I first initially probed the dataset to see how the dataset looks like, if there
 ```python
 python probedataset.py
 ```
-We get the following stats -
+We get the following stats for PUB dataset -
 
 ```python
 Dataset Statistics:
@@ -29,4 +29,39 @@ Membership Distribution:
 Non-members (0): 10000 (50.00%)
 Members (1): 10000 (50.00%)
 ```
-Notice how there are certain data points belonging to Class 35 that have only 4 samples per class. This would constitute a minor class and if we want our MIA to be successful we need to ensure we sample the datapoints in a way that would circumvent this imbalance.
+and for PRIV dataset
+
+```python 
+Dataset Statistics:
+--------------------------------------------------
+Total samples: 20000
+Number of classes: 44
+How the dataset looks like :
+Min samples per class: 4 (Class 35)
+Max samples per class: 3305 (Class 17)
+```
+
+Notice how there are certain data points belonging to Class 35 that have only 4 samples per class. This would constitute a minor class and if we want our MIA to be successful we need to ensure we sample the datapoints in a way that would circumvent this imbalance. 
+
+## How it works?
+Below here I detail how the algorithm works -
+
+1. This the LiRA offline attack which is computationally friendly since we do not train shadow models on the target data points. We train $N = k$ shadow models on a random disjoint sample of the dataset, where $k = \{2,10,50,100\}$.
+2. Note that, since we observe the given datasets are class imbalanced, we account for this by weighted sampling. That is, we give higher weight to an under-represented class,
+```python
+label_counts = np.bincount([label for _, _, label, _ in dataset])
+class_weights = 1. / label_counts
+class_weights = class_weights / class_weights.sum()           
+# Weighted sampling for better class balance
+weights = [class_weights[label] for _, _, label, _ in dataset]
+weights = np.array(weights) / sum(weights)
+indices = np.random.choice(len(dataset), size=len(dataset)//2, replace=False, p=weights)
+```
+3. We also take care of this in the loss function by passing ```class_weights``` as the parameter to the loss function
+
+```python
+label_counts = np.bincount([dataset.labels[i] for i in indices])
+class_weights = torch.FloatTensor(1. / label_counts).to(self.device)
+criterion = nn.CrossEntropyLoss(weight=class_weights)
+optimizer = optim.Adam(model.parameters(), lr=0.01)
+```
