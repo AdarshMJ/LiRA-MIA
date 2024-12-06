@@ -228,7 +228,7 @@ if __name__ == "__main__":
         'tpr_at_fpr': [tpr],
         'auc': [roc_auc]
     })
-    metrics_df.to_csv("public_metrics.csv", index=False)
+    metrics_df.to_csv("public_metrics.csv", mode='a', header=not pd.io.common.file_exists("public_metrics.csv"), index=False)
     print("Public dataset metrics saved to public_metrics.csv")
     
     # Predict on private data
