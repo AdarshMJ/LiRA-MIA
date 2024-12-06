@@ -46,7 +46,7 @@ Notice how there are certain data points belonging to Class 35 that have only 4 
 ## How it works?
 Below here I detail how the algorithm works -
 
-1. This the LiRA offline attack which is computationally friendly since we do not train shadow models on the target data points. We train $N = k$ shadow models on a random disjoint sample of the dataset, where $k = \{2,10,50,100\}$.
+1. This the LiRA offline attack which is computationally friendly since we do not train shadow models on the target data points. We train $N = k$ shadow models on a random disjoint sample of the dataset, where $k = {2,10,50,100}$.
 2. Note that, since we observe the given datasets are class imbalanced, we account for this by weighted sampling. That is, we give higher weight to an under-represented class,
 ```python
 label_counts = np.bincount([label for _, _, label, _ in dataset])
@@ -65,3 +65,33 @@ class_weights = torch.FloatTensor(1. / label_counts).to(self.device)
 criterion = nn.CrossEntropyLoss(weight=class_weights)
 optimizer = optim.Adam(model.parameters(), lr=0.01)
 ```
+4. The LiRA method works by constructing empirical distributions $\mathbb{\tilde{Q}}{in}(x,y)$ where the data point was included and $\mathbb{\tilde{Q}}{out}(x,y)$ where the data point was excluded by approximating them as Gaussians. The likelihood is calculated as follows $p(l(f(x),y)) | \mathbb{\tilde{Q}}_{in/out}(x,y)$. To ensure the cross-entropy loss is accurately captured by the Normal distribution we apply a logit scaling and calculate the score, the higher the score is the more likely the data point is a member (Equation 4 in the paper).
+
+```Python
+    def _get_shadow_predictions(self, img, label):
+        """Get predictions from all shadow models"""
+        shadow_preds = []
+        for shadow_model in self.shadow_models:
+            outputs = shadow_model(img.unsqueeze(0))
+            probs = F.softmax(outputs, dim=1)
+            score = probs[0, label]
+            shadow_preds.append(score.item())
+        return shadow_preds
+
+    def _calculate_test_score(self, shadow_preds, img, label):
+        """Calculate test score using shadow predictions and target model"""
+        shadow_logits = list(map(lambda x: np.log(x / (1 - x + 1e-30)), shadow_preds))
+        mean_out = np.mean(shadow_logits)
+        std_out = np.std(shadow_logits)
+
+        # Get target model prediction
+        outputs = self.target_model(img.unsqueeze(0))
+        probs = F.softmax(outputs, dim=1)
+        target_score = probs[0, label].item()
+        target_logit = np.log(target_score / (1 - target_score + 1e-30))
+
+        # Calculate test score using CDF
+        return scipy.stats.norm.cdf(target_logit, mean_out, std_out + 1e-30)
+```
+
+
