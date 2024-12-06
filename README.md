@@ -1,7 +1,6 @@
 # LiRA-MIA
 
-This is a PyTorch implementation of Membership Inference Attack proposed in the paper - Membership Inference Attacks From First Principles (https://arxiv.org/abs/2112.03570).
-The implementation is based on Algorithm 1, the MIA attack is called LiRA - Likelihood Ratio Test Attack, I implemented here the offline version.
+This is a PyTorch implementation of Membership Inference Attack proposed in the paper [1]. The implementation is based on Algorithm 1, the MIA attack is called LiRA - Likelihood Ratio Test Attack, I implemented here the offline version.
 
 ## Task at hand
 
@@ -95,3 +94,10 @@ optimizer = optim.Adam(model.parameters(), lr=0.01)
 ```
 
 5. Finally we calculate the TPR@FPR = 0.05 for the PUB dataset and output continuous membership values for the PRIV_OUT dataset.
+
+## References 
+[1]  Membership Inference Attacks From First Principles (https://arxiv.org/abs/2112.03570)
+
+[2]  My implementation is different from this but it helped me get an idea on how the logit scaling is performed. https://github.com/DevPranjal/mico-first-principles/tree/master
+
+[3] The original implementation by the authors - https://github.com/tensorflow/privacy/tree/master which is in Tensorflow.
