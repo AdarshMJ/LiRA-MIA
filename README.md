@@ -1,6 +1,6 @@
 # LiRA-MIA
 
-This is a PyTorch implementation of Membership Inference Attack proposed in the paper [1]. The implementation is based on Algorithm 1, the MIA attack is called LiRA - Likelihood Ratio Test Attack, I implemented here the offline version. All the experiments were done on Google Colab Pro.
+This is a PyTorch implementation of Membership Inference Attack proposed in the paper [1]. The implementation is based on Algorithm 1, the MIA attack is called LiRA - Likelihood Ratio Test Attack, I implemented here the offline version. All the experiments were done on Google Colab Pro. Please check [Discussion.md](https://github.com/AdarshMJ/LiRA-MIA/main/Discussion.md) for discussion on results.
 
 The code can be run as
 
