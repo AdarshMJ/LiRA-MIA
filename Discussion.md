@@ -29,6 +29,7 @@ For this dataset, the only way I could evaluate if my method works is by posting
 | 2024-12-07 09:30:56 | private_predictions_20.csv | 0.04766666666666667             | 0.4995845                  |
 | 2024-12-07 11:21:48 | private_predictions_10.csv | 0.04666666666666667             | 0.5020166111111111         |
 | 2024-12-07 12:28:23 | PrivateUpdated_10.csv    | 0.036333333333333336            | 0.49953266666666674        |
+| 2024-12-07 14:04:12 | private_preds_updated_3.csv    | 0.049666666666666665            | 0.49227183333333335  |
 
 
 
