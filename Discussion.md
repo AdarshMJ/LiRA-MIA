@@ -1,7 +1,7 @@
 # Results and Discussion
 
 ### Training details
-1. Shadow models = 2,5,10,20,100
+1. Shadow models = 2,5,10,20,50,100
 2. LR = 0.001
 3. Number of epochs tested = 10,20,50
 4. ReduceLORonPlateau with patience = 7
