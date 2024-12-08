@@ -1,6 +1,5 @@
 import warnings
 warnings.filterwarnings('ignore')
-
 import torch
 import torch.nn.functional as F
 import numpy as np
@@ -14,7 +13,6 @@ from tqdm import tqdm
 from torch.utils.data import Dataset, DataLoader, Subset
 from typing import Tuple
 
-## Already given in the test.py###
 class TaskDataset(Dataset):
     def __init__(self, transform=None):
         self.ids = []
@@ -42,7 +40,6 @@ class MembershipDataset(TaskDataset):
         id_, img, label = super().__getitem__(index)
         return id_, img, label, self.membership[index]
 
-### Likelihood Ratio Attack###
 class LiRAAttack:
     def __init__(self, target_model, n_shadow_models, n_epochs, batch_size):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -75,37 +72,19 @@ class LiRAAttack:
             self.shadow_models.append(shadow_model)
 
     def _train_single_shadow(self, model, dataset, indices):
+        """Train a single shadow model with weighted loss"""
         model.train()
         
         # Calculate class weights for loss function
         label_counts = np.bincount([dataset.labels[i] for i in indices])
         class_weights = torch.FloatTensor(1. / label_counts).to(self.device)
         criterion = nn.CrossEntropyLoss(weight=class_weights)
-        
-        # Initialize optimizer with lower learning rate
-        optimizer = optim.Adam(model.parameters(), lr=0.001)
-        # Add learning rate scheduler
-        scheduler = optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, 
-            mode='min',
-            factor=0.5,
-            patience=3,
-            verbose=True
-        )
+        optimizer = optim.Adam(model.parameters(), lr=0.01)
         
         subset = Subset(dataset, indices)
         dataloader = DataLoader(subset, batch_size=self.batch_size, shuffle=True)
         
-        # Early stopping setup
-        best_loss = float('inf')
-        patience = 7
-        patience_counter = 0
-        best_state_dict = None
-        
         for epoch in range(self.n_epochs):
-            epoch_loss = 0.0
-            num_batches = 0
-            
             for batch in dataloader:
                 _, img, label, _ = batch
                 img = img.to(self.device)
@@ -115,34 +94,7 @@ class LiRAAttack:
                 outputs = model(img)
                 loss = criterion(outputs, label)
                 loss.backward()
-                
-                # Add gradient clipping
-                torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-                
                 optimizer.step()
-                epoch_loss += loss.item()
-                num_batches += 1
-            
-            # Calculate average loss for the epoch
-            avg_loss = epoch_loss / num_batches
-            
-            # Learning rate scheduling
-            scheduler.step(avg_loss)
-            
-            # Early stopping check
-            if avg_loss < best_loss:
-                best_loss = avg_loss
-                patience_counter = 0
-                best_state_dict = model.state_dict().copy()
-            else:
-                patience_counter += 1
-                if patience_counter >= patience:
-                    print(f"Early stopping triggered at epoch {epoch}")
-                    break
-        
-        # Load the best model state if early stopping occurred
-        if best_state_dict is not None:
-            model.load_state_dict(best_state_dict)
 
     def compute_attack_scores(self, dataset):
         scores = []
@@ -201,8 +153,8 @@ class LiRAAttack:
         
         # Save predictions to CSV
         df = pd.DataFrame({
-            'ids': ids,
-            'score': scores
+            'id': ids,
+            'membership_score': scores
         })
         df.to_csv(output_path, index=False)       
         return scores
@@ -253,7 +205,7 @@ if __name__ == "__main__":
     # Load the model
     model = resnet18(pretrained=False)
     model.fc = nn.Linear(512, 44)
-    ckpt = torch.load("01_MIA_67.pt", map_location="cpu")
+    ckpt = torch.load("/content/drive/MyDrive/Code/01_MIA_67.pt", map_location="cuda")
     model.load_state_dict(ckpt)
     model.eval()
 
@@ -261,7 +213,7 @@ if __name__ == "__main__":
     pub_data: MembershipDataset = torch.load("pub.pt")
     
     # Create and train attack model
-    attack = LiRAAttack(model, n_shadow_models=50, n_epochs=20,batch_size=32)
+    attack = LiRAAttack(model, n_shadow_models=100, n_epochs=12,batch_size=64)
     attack.train_shadow_models(pub_data)
     
     # Evaluate on public data
@@ -272,12 +224,12 @@ if __name__ == "__main__":
     ###Log public dataset metrics
     metrics_df = pd.DataFrame({
         'n_shadow_models': [attack.n_shadow_models],
-        'n_epochs': [attack.n_epochs]
+        'n_epochs': [attack.n_epochs],
         'tpr_at_fpr': [tpr],
         'auc': [roc_auc]
     })
-    # Check if file exists and append to it, otherwise create new
-    metrics_df.to_csv("publicmetrics.csv", mode='a', header=not pd.io.common.file_exists("public_metrics.csv"), index=False)
+    metrics_df.to_csv("public_metrics.csv", mode='a', header=not pd.io.common.file_exists("public_metrics.csv"), index=False)
+    print("Public dataset metrics saved to public_metrics.csv")
     
     # Predict on private data
     print("Evaluating Private Data...")
