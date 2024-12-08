@@ -51,7 +51,7 @@ Notice how there are certain data points belonging to Class 35 that have only 4 
 ## How it works?
 Below here I detail how the algorithm works -
 
-1. This the LiRA offline attack which is computationally friendly since we do not train shadow models on the target data points. We train $N = k$ shadow models on a random disjoint sample of the dataset, where $k = {2,10,50,100}$.
+1. This the LiRA offline attack which is computationally friendly since we do not train shadow models on the target data points. We train $N = k$ shadow models on a random disjoint sample of the dataset, where $k = {2,5,10,50,100}$.
 2. Note that, since we observe the given datasets are class imbalanced, we account for this by weighted sampling. That is, we give higher weight to an under-represented class,
 ```python
 label_counts = np.bincount([label for _, _, label, _ in dataset])
