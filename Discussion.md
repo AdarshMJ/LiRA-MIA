@@ -2,10 +2,9 @@
 
 ### Training details
 1. Shadow models = 2,5,10,20,50,100
-2. LR = 0.001
+2. LR = 0.01,0.001
 3. Number of epochs tested = 10,20,50
-4. ReduceLORonPlateau with patience = 7
-5. Adam optimizer
+4. Adam optimizer
 
 ### PUB Dataset
 The LiRA method needs greater number of reference/shadow models to be trained for the empirical distributions to make sense and the $mu_{out}$ and $\sigma^2_{out}$ to be meaningful. I have trained shadow models = 2,5,10,20,100 and below I report the TPR@FPR for the PUB dataset in the table below.
