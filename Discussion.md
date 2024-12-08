@@ -20,7 +20,7 @@ The LiRA method needs greater number of reference/shadow models to be trained fo
 
 ### PRIV Dataset
 
-For this dataset, the only way I could evaluate if my method works is by posting it on the server and waiting for an hour. The results are given in the table below. 
+For this dataset, the only way I could evaluate if my method works is by posting it on the server and waiting for an hour. The results are given in the table below. I have also included a ```prediction_logs.csv``` file which shows the responses I have received.
 
 | Timestamp           | Input_File             | TPR@FPR=0.05                     | AUC                        |
 |---------------------|------------------------|----------------------------------|----------------------------|
@@ -30,10 +30,8 @@ For this dataset, the only way I could evaluate if my method works is by posting
 | 2024-12-07 11:21:48 | private_predictions_10.csv | 0.04666666666666667             | 0.5020166111111111         |
 | 2024-12-07 12:28:23 | PrivateUpdated_10.csv    | 0.036333333333333336            | 0.49953266666666674        |
 | 2024-12-07 14:04:12 | private_preds_updated_3.csv    | 0.049666666666666665            | 0.49227183333333335  |
+|2024-12-08 06:59:30 |private_predictions_5.csv| 0.05266666666666667|0.5026543888888889|
 
-
-
-Clearly, the method does not seem to be effective on the PRIV dataset and with the server cool-off period I cannot make sure how my method is doing. So to quickly evaluate if I should even post my predictions to the server, I decided to use the PUB data and artificially made it into a PRIV data by removing the membership labels and creating a 3-way cross validation approach to evaluate if the proposed method indeed also works on the actual PRIV dataset. Now we only send the results to the server if the TPR@FPR=0.05 > 0.0512 on average. I have also implemented the global variance method which the authors suggest should help when the number of reference models are low.
 
 
 
