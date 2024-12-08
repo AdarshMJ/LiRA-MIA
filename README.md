@@ -70,7 +70,6 @@ indices = np.random.choice(len(dataset), size=len(dataset)//2, replace=False, p=
 label_counts = np.bincount([dataset.labels[i] for i in indices])
 class_weights = torch.FloatTensor(1. / label_counts).to(self.device)
 criterion = nn.CrossEntropyLoss(weight=class_weights)
-optimizer = optim.Adam(model.parameters(), lr=0.01)
 ```
 4. The LiRA method works by constructing empirical distributions $\mathbb{\tilde{Q}}{in}(x,y)$ where the data point was included and $\mathbb{\tilde{Q}}{out}(x,y)$ where the data point was excluded, by approximating them as Gaussians. The likelihood is calculated as follows $p(l(f(x),y)) | \mathbb{\tilde{Q}}_{in/out}(x,y)$. To ensure the cross-entropy loss is accurately captured by the Normal distribution we apply a logit scaling and calculate the score, the higher the score is the more likely the data point is a member (Equation 4 in the paper).
 
