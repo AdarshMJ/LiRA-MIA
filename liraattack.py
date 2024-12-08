@@ -79,7 +79,7 @@ class LiRAAttack:
         label_counts = np.bincount([dataset.labels[i] for i in indices])
         class_weights = torch.FloatTensor(1. / label_counts).to(self.device)
         criterion = nn.CrossEntropyLoss(weight=class_weights)
-        optimizer = optim.Adam(model.parameters(), lr=0.01)
+        optimizer = optim.Adam(model.parameters(), lr=0.001)
         
         subset = Subset(dataset, indices)
         dataloader = DataLoader(subset, batch_size=self.batch_size, shuffle=True)
@@ -153,8 +153,8 @@ class LiRAAttack:
         
         # Save predictions to CSV
         df = pd.DataFrame({
-            'id': ids,
-            'membership_score': scores
+            'ids': ids,
+            'score': scores
         })
         df.to_csv(output_path, index=False)       
         return scores
@@ -213,7 +213,7 @@ if __name__ == "__main__":
     pub_data: MembershipDataset = torch.load("pub.pt")
     
     # Create and train attack model
-    attack = LiRAAttack(model, n_shadow_models=100, n_epochs=12,batch_size=64)
+    attack = LiRAAttack(model, n_shadow_models=5, n_epochs=10,batch_size=32)
     attack.train_shadow_models(pub_data)
     
     # Evaluate on public data
